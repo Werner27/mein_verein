@@ -1,36 +1,148 @@
 {% extends "base_simple.html" %}
 
 {% block app_content %}
-    <form class="form-horizontal" id="myForm" action="{{url_for('details_update')}}" method="post">
+    <form class="form-horizontal" id="myForm">
         <div class="row">
-            {% for row in table %}
-                <div class="col-sm-12">
-                    {% for key in table[0].keys() %}
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">{{ key }}:</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" name="{{key}}" value="{{row[key]}}">
-                            </div>
-                        </div>
-                    {% endfor %}
+            <input type="hidden" name="ID" value="{{table[0]['ID']}}">
+            <div class="col-sm-12">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Vorname:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="Vorname" value="{{table[0]['Vorname']}}">
+                    </div>
                 </div>
-            {% endfor %}
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Nachname:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="Nachname" value="{{table[0]['Nachname']}}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Geburtsdatum:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="Geburtsdatum" value="{{table[0]['Geburtsdatum']}}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Eintrittsdatum:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="Eintrittsdatum" value="{{table[0]['Eintrittsdatum']}}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Vorstandstätigkeit:</label>
+                    <div class="col-md-3">
+                        <button type="button" onclick="vorstandsblockInsert()" class="btn btn-primary btn-lg btn-block">Einfügen</button>
+                    </div>
+                </div>
+            </div>
+            {% if table_vorstand: %}
+                {% for row in table_vorstand: %}
+                {% set row_num = loop.index0 + 1%}
+                <br><br>
+                {% for key in table_vorstand[0].keys(): %}
+                <div class="col-sm-12">
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">{{key}}_{{'%02d'|format(row_num)}}:</label>
+                        <div class="col-sm-10">
+                             <!-- Name-Attribut um die Zeilennummer ergänzt -->
+                            <input type="text" class="form-control" name="{{key}}_{{'%02d'|format(row_num)}}" value="{{row[key]}}">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endfor %}
+            {% endif %}
+            <div id="vorstands-container"></div>
         </div>
-        <div class="form-group row" >
+        <div class="form-group row">
             <div class="col-md-3">
-                <button type="submit" class="btn btn-primary btn-lg btn-block">Übernehmen</button>
+                <button type="button" onclick="submitUpdate()" class="btn btn-primary btn-lg btn-block">Übernehmen</button>
             </div>
              <div class="col-md-9 text-right">
-                <button type="button" onclick="goBack()" class="btn btn-primary btn-lg btn-block">Zurück</button>
+                <button type="button" onclick="submitBack()" class="btn btn-primary btn-lg">Zurück</button>
              </div>
         </div>
     </form>
 {% endblock %}
 
 {% block scripts %}
-    function goBack() {
-                window.history.back();
+    {% if table_vorstand: %}
+        let rowCounter = {{table_vorstand|length}};  // Zählt vorhandene Reihen der Tabelle
+    {% else: %}
+        let rowCounter = 0;  // Zählt vorhandene Reihen oder startet bei 0
+    {% endif %}
+
+
+    let saveLastPage = "{{url_for('mitglieder')}}";
+    let calledPage = document.referrer;
+    pruefeUndSpeichern(calledPage);
+
+    function pruefeUndSpeichern(text) {
+    // Prüfe, ob der Text "Mitglieder" oder "Vorstand" enthält
+    if (text.includes("mitglieder") || text.includes("vorstand")) {
+        saveLastPage = text; // Speichere den Text in der globalen Variable
+        }
     }
+    function submitUpdate() {
+        var form = document.getElementById('myForm');
+        form.action = "{{url_for('details', action='update')}}";
+        form.method = "post";
+        form.submit();
+    }
+    function submitBack() {
+        var form = document.getElementById('myForm');
+        form.action = saveLastPage;
+        form.method = "post";
+        form.submit();
+    }
+    function vorstandsblockInsert() {
+        rowCounter++;  // Erhöht die Zeilennummer für jede neue Reihe
+        // Formatierung der Zahl mit führender 0 (immer zweistellig)
+        let formattedCounter = rowCounter.toString().padStart(2, '0');
+
+        // Neues HTML-Element für die dynamisch eingefügte Vorstandstätigkeit
+        const newBlock = `
+            <div class="col-sm-12">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Position_${formattedCounter}:</label>
+                    <div class="col-sm-10">
+                        <select name="filter">
+                        <option value="k">keine</option>
+                        <option value="25">25 Jahre</option>
+                        <option value="40">40 Jahre</option>
+                      </select>
+                        <input type="text" class="form-control" name="Position_${formattedCounter}" value="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Von_${formattedCounter}:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="Von_${formattedCounter}" value="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Bis_${formattedCounter}:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="Bis_${formattedCounter}" value="">
+                    </div>
+                </div>
+            </div>
+            <br><br>
+        `;
+
+        // Block in den Container einfügen
+        document.getElementById('vorstands-container').insertAdjacentHTML('beforeend', newBlock);
+    }
+
 {% endblock %}
 
 
