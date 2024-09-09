@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css">
+        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg')}}" sizes="any">
+
+        <script type=text/javascript src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
+        <script type=text/javascript src="{{ url_for('static', filename='bootstrap-3.4.1-dist/js/bootstrap.min.js') }}"></script>
+
+        {% block head %}  {% endblock %}
+
+        <style>
+              .tableFixHead {
+                overflow-y: auto;
+                height: 700px;
+              }
+              .tableFixHead thead th {
+                position: sticky;
+                top: 0;
+              }
+              table {
+                border-collapse: collapse;
+                width: 100%;
+              }
+              th,
+              td {
+                padding: 4px 8px;
+                border: 1px solid #000;
+              }
+              th {
+                background: #eee;
+              }
+            {% block style %} {% endblock %}
+        </style>
+    </head>
+
+    <body class="w3-theme-l2">
+        <div class="container">
+          <nav class="navbar navbar-inverse">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{{ url_for('index') }}">Monitor {{title}}</a>
+                </div>
+              <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Auswahl<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('mitglieder')}}">Mitglieder</a></li>
+                            <li><a href="{{ url_for('vorstand')}}">Vorstand</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Seite 3<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('test')}}">Test</a></li>
+                            <li><a href=#>Seite 3-2</a></li>
+                            <li><a href=#>Seite 3-3</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                  <ul class="nav navbar-nav navbar-right">
+                      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Registrieren</a></li>
+                      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                  </ul>
+              </div>
+            </nav>
+        </div>
+       <div class="container">
+            {# application content needs to be provided in the app_content block #}
+            {% block app_content %} {% endblock %}
+        </div>
+
+    <script>
+    {% block scripts %} {% endblock %}
+    </script>
+    </body>
+</html>

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+    {% block style %}
+    {% endblock %}
+
+
+{% block app_content %}
+    <form class="form-horizontal" id="myForm" action="{{url_for(call_page)}}" method="post">
+        <div class="form-group row" >
+            <div class="col-md-3">
+              <label for="filter" class="control-label">Filter:</label>
+              <select onchange="fnSubmit();" id="filter" name="filter">
+                <option value="k">keine</option>
+                <option value="25">25 Jahre</option>
+                <option value="40">40 Jahre</option>
+              </select>
+            </div>
+            <div class="col-md-9 text-right">
+                 <!-- Verstecktes Eingabefeld für die ID -->
+                <input type="hidden" name="id" id="newMemberId" value="">
+                <button type="button" class="btn btn-primary" onclick="submitNewMember()">Neues Mitglied</button>
+           </div>
+        </div>
+    </form>
+    {% if table: %}
+    <div class="tableFixHead">
+    <table>
+        <thead>
+          <tr>
+            {% for key in table[0].keys(): %}
+            <th id="{{key}}">{{key}}</th>
+            {% endfor %}
+              <th id="action">Aktion</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for row in table: %}
+            <tr>
+                {% for key in table[0].keys(): %}
+                <td>{{row[key]}}</td>
+                {% endfor %}
+                <td>
+                    <form action="{{ url_for('details')}}" method="get">
+                        <input type="hidden" name="id" value="{{ row['ID'] }}">
+                        <button type="submit">Details</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else: %}
+    <div>keine Daten</div>
+    <div>{{error_str}}</div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    setSelected("filter", "{{param['filter']}}");
+
+    function fnSubmit() {
+      document.getElementById("myForm").submit();
+    }
+
+    function submitNewMember() {
+        // Setzt die ID auf -1 und ändert die Action des Formulars
+        document.getElementById('newMemberId').value = -1;
+        var form = document.getElementById('myForm');
+        form.action = "{{url_for('details', action='new')}}";
+        form.method = "post";
+        form.submit();
+    }
+    function setSelected(idName, text){
+        const select = document.getElementById(idName);
+        select.value = text;
+    }
+
+{% endblock %}

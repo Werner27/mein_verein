@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css">
+        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg')}}" sizes="any">
+
+        <script type=text/javascript src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
+        <script type=text/javascript src="{{ url_for('static', filename='bootstrap-3.4.1-dist/js/bootstrap.min.js') }}"></script>
+
+        {% block head %}  {% endblock %}
+
+    </head>
+
+    <body class="w3-theme-l2">
+        <div class="container">
+          <nav class="navbar navbar-inverse">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+                <a class="navbar-brand" href="#">{{title}}</a>
+            </div>
+          </div>
+        </nav>
+        </div>
+       <div class="container">
+            {# application content needs to be provided in the app_content block #}
+            {% block app_content %} {% endblock %}
+       </div>
+
+    <script>
+    {% block scripts %} {% endblock %}
+    </script>
+    </body>
+</html>

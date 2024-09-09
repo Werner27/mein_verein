@@ -1,0 +1,36 @@
+{% extends "base_simple.html" %}
+
+{% block app_content %}
+    <form class="form-horizontal" id="myForm" action="{{url_for('details_update')}}" method="post">
+        <div class="row">
+            {% for row in table %}
+                <div class="col-sm-12">
+                    {% for key in table[0].keys() %}
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">{{ key }}:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="{{key}}" value="{{row[key]}}">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="form-group row" >
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Übernehmen</button>
+            </div>
+             <div class="col-md-9 text-right">
+                <button type="button" onclick="goBack()" class="btn btn-primary btn-lg btn-block">Zurück</button>
+             </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    function goBack() {
+                window.history.back();
+    }
+{% endblock %}
+
+
