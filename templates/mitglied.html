@@ -44,30 +44,49 @@
                     </div>
                 </div>
             </div>
-            {% if table_vorstand: %}
-                {% for row in table_vorstand: %}
-                {% set row_num = loop.index0 + 1%}
-                <br><br>
-                {% for key in table_vorstand[0].keys(): %}
-                <div class="col-sm-12">
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">{{key}}_{{'%02d'|format(row_num)}}:</label>
-                        <div class="col-sm-10">
-                             <!-- Name-Attribut um die Zeilennummer ergänzt -->
-                            <input type="text" class="form-control" name="{{key}}_{{'%02d'|format(row_num)}}" value="{{row[key]}}">
+
+            {% if table_vorstand %}
+                {% for row in table_vorstand %}
+                {% set row_num = loop.index0 + 1 %}
+                    <br><br>
+                    <div class="col-sm-12">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Position_{{ "%02d"|format(row_num) }}:</label>
+                            <div class="col-sm-10">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="Position_{{ '%02d'|format(row_num) }}" value="{{ row['Position'] }}" readonly>
+                                <div class="input-group-btn">
+                                    <button class="btn btn-danger" type="button" onclick="submitDeleteRow({{ row_num }})">
+                                        <i class="glyphicon glyphicon-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Von:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="Von_{{ '%02d'|format(row_num) }}" value="{{ row['Von'] }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Bis:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="Bis_{{ '%02d'|format(row_num) }}" value="{{ row['Bis'] }}">
+                            </div>
                         </div>
                     </div>
-                </div>
-                {% endfor %}
                 {% endfor %}
             {% endif %}
             <div id="vorstands-container"></div>
         </div>
         <div class="form-group row">
+            <div class="col-md-2">
+            </div>
             <div class="col-md-3">
                 <button type="button" onclick="submitUpdate()" class="btn btn-primary btn-lg btn-block">Übernehmen</button>
             </div>
-             <div class="col-md-9 text-right">
+             <div class="col-md-7 text-right">
                 <button type="button" onclick="submitBack()" class="btn btn-primary btn-lg">Zurück</button>
              </div>
         </div>
@@ -81,26 +100,30 @@
         let rowCounter = 0;  // Zählt vorhandene Reihen oder startet bei 0
     {% endif %}
 
-
-    let saveLastPage = "{{url_for('mitglieder')}}";
-    let calledPage = document.referrer;
-    pruefeUndSpeichern(calledPage);
-
-    function pruefeUndSpeichern(text) {
-    // Prüfe, ob der Text "Mitglieder" oder "Vorstand" enthält
-    if (text.includes("mitglieder") || text.includes("vorstand")) {
-        saveLastPage = text; // Speichere den Text in der globalen Variable
-        }
-    }
     function submitUpdate() {
         var form = document.getElementById('myForm');
         form.action = "{{url_for('details', action='update')}}";
         form.method = "post";
         form.submit();
     }
+    function submitDelID() {
+        var form = document.getElementById('myForm');
+        form.action = "{{url_for('details', action='del_ID')}}";
+        form.method = "post";
+        form.submit();
+    }
+    function submitDeleteRow(row) {
+        var form = document.getElementById('myForm');
+        form.action = "{{url_for('details', action='del_row', row='')}}" + row;
+        // Fals ich noch eine variable einfügen möchte
+        // form.action = "{{ url_for('details', action='del_row', row='', extra='') }}" + row + "&extra=" + extra;
+        // alert(form.action)
+        form.method = "post";
+        form.submit();
+    }
     function submitBack() {
         var form = document.getElementById('myForm');
-        form.action = saveLastPage;
+        form.action = "{{url_for('mitglieder')}}";
         form.method = "post";
         form.submit();
     }
@@ -115,24 +138,25 @@
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label">Position_${formattedCounter}:</label>
                     <div class="col-sm-10">
-                        <select name="filter">
-                        <option value="k">keine</option>
-                        <option value="25">25 Jahre</option>
-                        <option value="40">40 Jahre</option>
+                        <select class="form-control"  name="Position_${formattedCounter}">
+                        <option value="1.Vorsitzender">1.Vorsitzender</option>
+                        <option value="2.Vorsitzender">2.Vorsitzender</option>
+                        <option value="Kassenwart">Kassenwart</option>
+                        <option value="Schriftführer">Schriftführer</option>
+                        <option value="Vergnügungswart">Vergnügungswart</option>
                       </select>
-                        <input type="text" class="form-control" name="Position_${formattedCounter}" value="">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-sm-2 col-form-label">Von_${formattedCounter}:</label>
+                    <label class="col-sm-2 col-form-label">Von:</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" name="Von_${formattedCounter}" value="">
+                        <input type="text" class="form-control" name="Von_${formattedCounter}" id="cur_date${formattedCounter}" value="">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-sm-2 col-form-label">Bis_${formattedCounter}:</label>
+                    <label class="col-sm-2 col-form-label">Bis:</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" name="Bis_${formattedCounter}" value="">
+                        <input type="text" class="form-control" name="Bis_${formattedCounter}" value="aktiv">
                     </div>
                 </div>
             </div>
@@ -141,6 +165,15 @@
 
         // Block in den Container einfügen
         document.getElementById('vorstands-container').insertAdjacentHTML('beforeend', newBlock);
+
+        let today = new Date();
+        let formattedDate = today.toISOString().split('T')[0]; // YYYY-MM-DD Format
+        // Zerlege das Datum
+        let [year, month, day] = formattedDate.split('-');
+        // Erstelle das Datum im gewünschten Format DD.MM.YYYY
+        formattedDate = `${day}.${month}.${year}`;
+
+        document.getElementById('cur_date' + formattedCounter).value = formattedDate;
     }
 
 {% endblock %}

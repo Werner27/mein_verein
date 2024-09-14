@@ -164,6 +164,38 @@ class ClDataframeHelper:
                 return id
         return None  # Falls alle IDs bis max_id verwendet sind
 
+    def update_id_csv(self, csv_name: str, id: int, updated_member):
+
+        path_csv = os.path.join(self.file_path, csv_name)
+        if not os.path.exists(path_csv):
+            raise FileNotFoundError(f'read_csv Die Datei {path_csv} existiert nicht.')
+
+        path_temp = os.path.join(self.file_path, csv_name + '.tmp')
+
+        try:
+            # Lesen der CSV-Datei in einen DataFrame
+            df = pd.read_csv(path_csv, index_col=None)
+            # aktuelle id der neuen Daten entfernen
+            df_cleaned = df.drop(df[df['ID'] == id].index)
+
+            # Umwandeln der neuen Daten in einen DataFrame
+            df_insert = pd.DataFrame(updated_member)
+
+            # Hinzufügen der neuen Zeile
+            df_new = pd.concat([df_cleaned, df_insert], ignore_index=True)
+
+            # Schreiben der aktualisierten Daten in eine temporäre Datei
+            df_new.to_csv(path_temp, index=False)
+
+            # Ersetzen der Originaldatei durch die temporäre Datei
+            os.replace(path_temp, path_csv)
+
+        except Exception as e:
+            # Löschen der temporären Datei im Fehlerfall
+            if os.path.exists(path_temp):
+                os.remove(path_temp)
+            raise e
+
     def insert_member(self, df, row) -> int:
         # Ermitteln der ersten unbenutzten ID
         new_id = self.get_first_unused_id(df)
@@ -175,16 +207,9 @@ class ClDataframeHelper:
         # Umwandeln des neuen Mitglieds in einen DataFrame
         row_df = pd.DataFrame([row])
 
-        # Debug-Ausgabe: Inhalt von new_member_df
-        print("row_df:")
-        print(row_df)
-
         # Hinzufügen der neuen Zeile
         df = pd.concat([df, row_df], ignore_index=True)
 
-        # Debug-Ausgabe: Inhalt von df nach dem Anhängen
-        print("df nach dem Hinzufügen:")
-        print(df.tail())  # Zeige die letzten Zeilen, um das neue Mitglied zu sehen
         return df
 
     def insert_csv(self, csv_name: str, new_member) -> int:
@@ -233,6 +258,58 @@ class ClDataframeHelper:
                 os.remove(path_temp)
             raise e
 
+    def delete_id_csv(self, csv_name: str, id: int):
+
+        path_csv = os.path.join(self.file_path, csv_name)
+        if not os.path.exists(path_csv):
+            raise FileNotFoundError(f'read_csv Die Datei {path_csv} existiert nicht.')
+
+        path_temp = os.path.join(self.file_path, csv_name + '.tmp')
+
+        try:
+            # Lesen der CSV-Datei in einen DataFrame
+            df = pd.read_csv(path_csv, index_col=None)
+            # Zeilen mir der id aus Datei entfernen
+            df_cleaned = df.drop(df[df['ID'] == id].index)
+
+            # Schreiben der aktualisierten Daten in eine temporäre Datei
+            df_cleaned.to_csv(path_temp, index=False)
+
+            # Ersetzen der Originaldatei durch die temporäre Datei
+            os.replace(path_temp, path_csv)
+
+        except Exception as e:
+            # Löschen der temporären Datei im Fehlerfall
+            if os.path.exists(path_temp):
+                os.remove(path_temp)
+            raise e
+
+    def delete_id_row_csv(self, csv_name: str, id: int, row_nr: int):
+
+        path_csv = os.path.join(self.file_path, csv_name)
+        if not os.path.exists(path_csv):
+            raise FileNotFoundError(f'read_csv Die Datei {path_csv} existiert nicht.')
+
+        path_temp = os.path.join(self.file_path, csv_name + '.tmp')
+
+        try:
+            # Lesen der CSV-Datei in einen DataFrame
+            df = pd.read_csv(path_csv, index_col=None)
+            # Zeilen mir der id aus Datei entfernen
+            index_to_delete = df[df['ID'] == id].index[row_nr - 1]
+            df_cleaned = df.drop(index_to_delete)
+
+            # Schreiben der aktualisierten Daten in eine temporäre Datei
+            df_cleaned.to_csv(path_temp, index=False)
+
+            # Ersetzen der Originaldatei durch die temporäre Datei
+            os.replace(path_temp, path_csv)
+
+        except Exception as e:
+            # Löschen der temporären Datei im Fehlerfall
+            if os.path.exists(path_temp):
+                os.remove(path_temp)
+            raise e
 
 if __name__ == "__main__":
     o_dataframe_helper = ClDataframeHelper('daten')

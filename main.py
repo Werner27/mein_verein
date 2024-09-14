@@ -17,6 +17,13 @@ def mitglieder():
     o_show_table.read_request(request)
     return o_show_table.render_temp_table('mitglieder.csv')
 
+@app.route('/del_mitglied', methods=['GET', 'POST'])
+def del_mitglied():
+    o_show_table = ClShowTable()
+    o_show_table.read_request(request)
+    o_show_table.delelte_id()
+    return o_show_table.render_temp_table('mitglieder.csv')
+
 @app.route('/vorstand', methods=['GET', 'POST'])
 def vorstand():
     o_show_table = ClShowTable()

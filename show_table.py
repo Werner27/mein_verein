@@ -22,12 +22,17 @@ class ClShowTable(ClDataframeHelper):
         self._filter = request.form.get('filter', 'k')
         self._param = {"id": self._id, "filter": self._filter}
 
+    def delelte_id(self):
+        self.delete_id_csv('mitglieder.csv', self._id)
+        self.delete_id_csv('vorstand.csv', self._id)
+
     def get_id(self):
         return self._id
 
     def render_temp_table(self, csv_name, csv_2_name=None):
 
         page = 'show_table.html'
+        call_page = "mitglieder"
         try:
             if self._param['filter'] == '25':
                 filter_conditions = {'Jahre': 25}
@@ -38,6 +43,7 @@ class ClShowTable(ClDataframeHelper):
 
             df_mitglieder = self.read_csv(csv_name)
             if csv_2_name is not None:
+                call_page = "vorstand"
                 df_mitglieder.drop(['Geburtsdatum', 'Eintrittsdatum', 'Status'], axis=1, inplace=True)
                 df_mitglieder = self.merge_file_2(df_mitglieder, csv_2_name, filter_conditions)
             else:
@@ -52,7 +58,7 @@ class ClShowTable(ClDataframeHelper):
             error_str = e
             table = False
 
-        return render_template(page, call_page='mitglieder', table=table,
+        return render_template(page, call_page=call_page, table=table,
                                    error_str=error_str, param=self._param)
 
     def merge_file_2(self, df, csv_name, filter_conditions):
@@ -66,6 +72,8 @@ class ClShowTable(ClDataframeHelper):
                                 pd.to_datetime(df_2["Von"], format='%d.%m.%Y').dt.year)
         df_2['Gesamtjahre'] = df_2.groupby('ID')['Jahre'].transform('sum')
         if filter_conditions is not None:
+            # Ändere den Key von 'Jahre' auf 'Gesamtjahre'
+            filter_conditions['Gesamtjahre'] = filter_conditions.pop('Jahre')
             df_2 = ClDataframeHelper.filter_dataframe(df_2, filter_conditions)
 
         # Beide df zusammenführen
@@ -85,10 +93,48 @@ class ClShowTable(ClDataframeHelper):
                         'Eintrittsdatum': request.form.get('Eintrittsdatum', datetime.now().strftime("%d.%m.%Y")),
                         'Status': request.form.get('Status', '2')}
             self._id = self.update_csv('mitglieder.csv', mitglied)
+
+            tab_vorstand = []
+            i = 1
+            while i < 20:
+                vorstand = {'ID': self._id}
+                formatted_str = f"_{i:02}"
+
+                vorstand['Position'] = request.form.get('Position'+ formatted_str, 'No')
+                if vorstand['Position'] == 'No':
+                    break
+
+                # Aktuelles Datum holen
+                dt_str = datetime.now().strftime("%d.%m.%Y")
+                vorstand['Von'] = request.form.get('Von' + formatted_str, dt_str)
+                vorstand['Bis'] = request.form.get('Bis' + formatted_str, dt_str)
+                try:
+                    # Versuche, das Datum im angegebenen Format zu parsen
+                    datetime.strptime(vorstand['Bis'], "%d.%m.%Y")
+                except ValueError:
+                    # Falls eine ValueError auftritt, ist das Datum ungültig
+                    vorstand['Bis'] = ''
+                i += 1
+                # self.update_id_csv('vorstand.csv', self._id, vorstand)
+                tab_vorstand.append(vorstand)
+
+            self.update_id_csv('vorstand.csv', self._id, tab_vorstand)
+
+        elif action == "del_ID":
+            self._id = int(request.form.get('ID', 0))
+            self.delete_id_csv('mitglieder.csv',self._id)
+            self.delete_id_csv('vorstand.csv', self._id)
+
+        elif action == "del_row":
+            self._id = int(request.form.get('ID', 0))
+            row_nr = request.args.get('row', 0)
+            self.delete_id_row_csv('vorstand.csv', self._id, row_nr)
+
+
         else:
             self._id = int(request.args.get('id', 0))
 
-        self._param = {"id": self._id,}
+        self._param = {"id": self._id}
 
     def render_temp_details(self, csv_name, csv_2_name=None):
         table_vorstand = False

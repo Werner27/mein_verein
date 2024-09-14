@@ -15,11 +15,13 @@
                 <option value="40">40 Jahre</option>
               </select>
             </div>
+            {% if call_page == 'mitglieder' %}
             <div class="col-md-9 text-right">
                  <!-- Verstecktes Eingabefeld für die ID -->
                 <input type="hidden" name="id" id="newMemberId" value="">
                 <button type="button" class="btn btn-primary" onclick="submitNewMember()">Neues Mitglied</button>
            </div>
+           {% endif %}
         </div>
     </form>
     {% if table: %}
@@ -30,7 +32,10 @@
             {% for key in table[0].keys(): %}
             <th id="{{key}}">{{key}}</th>
             {% endfor %}
-              <th id="action">Aktion</th>
+            {% if call_page == 'mitglieder' %}
+              <th id="action"></th>
+              <th id="del_id"></th>
+              {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -39,12 +44,21 @@
                 {% for key in table[0].keys(): %}
                 <td>{{row[key]}}</td>
                 {% endfor %}
+                {% if call_page == 'mitglieder' %}
                 <td>
                     <form action="{{ url_for('details')}}" method="get">
                         <input type="hidden" name="id" value="{{ row['ID'] }}">
-                        <button type="submit">Details</button>
+                        <button type="submit">
+                            <i class="glyphicon glyphicon-edit"></i>
+                        </button>
                     </form>
                 </td>
+                <td>
+                    <button class="btn btn-danger" type="button"  onclick="submitDeleteID({{ row['ID'] }})">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
@@ -63,6 +77,17 @@
       document.getElementById("myForm").submit();
     }
 
+function submitDeleteID(id) {
+    var confirmation = confirm("Bist du sicher, dass du dieses Element löschen möchtest?");
+    if (confirmation) {
+        var form = document.getElementById('myForm');
+        form.action = "{{url_for('del_mitglied', id='')}}" + id;
+        form.submit();
+    } else {
+        // Abbrechen - keine Aktion durchführen
+        return false;
+    }
+}
     function submitNewMember() {
         // Setzt die ID auf -1 und ändert die Action des Formulars
         document.getElementById('newMemberId').value = -1;
