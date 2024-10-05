@@ -33,8 +33,13 @@ def vorstand():
 @app.route('/details', methods=['GET', 'POST'])
 def details():
     o_show_table = ClShowTable()
-    o_show_table.request_details(request)
-    return o_show_table.render_temp_details('mitglieder.csv', 'vorstand.csv')
+    try:
+        o_show_table.request_details(request)
+        return o_show_table.render_temp_details('mitglieder.csv', 'vorstand.csv')
+    except Exception as e:
+        return f"Fehler bei Aufruf von o_show_table.request_details Exception: {e}"
+
+
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():

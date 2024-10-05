@@ -48,9 +48,10 @@ class ClShowTable(ClDataframeHelper):
                 df_mitglieder = self.merge_file_2(df_mitglieder, csv_2_name, filter_conditions)
             else:
                 df_mitglieder["Jahre"] = (pd.to_datetime("today").year -
-                                          pd.to_datetime(df_mitglieder["Eintrittsdatum"]).dt.year)
+                                          pd.to_datetime(df_mitglieder["Eintrittsdatum"], dayfirst=True).dt.year)
                 if filter_conditions is not None:
                     df_mitglieder = ClDataframeHelper.filter_dataframe(df_mitglieder, filter_conditions)
+
 
             table = df_mitglieder.to_dict('records')
             error_str = None
@@ -82,17 +83,17 @@ class ClShowTable(ClDataframeHelper):
         return merged_df[['ID', 'Vorname', 'Nachname', 'Position', 'Von', 'Bis', 'Jahre', 'Gesamtjahre']]
 
     def request_details(self, request: Request):
-        print(request.url)
         action = request.args.get('action', '')
         if action == "new":
             self._id = 0
         elif action == "update":
-            mitglied = {'ID': int(request.form.get('ID', 0)), 'Vorname': request.form.get('Vorname', 'No Name'),
+            self._id = int(request.form.get('ID', 0))
+            mitglied = {'ID': self._id, 'Vorname': request.form.get('Vorname', 'No Name'),
                         'Nachname': request.form.get('Nachname', 'No Name'),
                         'Geburtsdatum': request.form.get('Geburtsdatum', datetime(2000, 1, 1).strftime("%d.%m.%Y")),
                         'Eintrittsdatum': request.form.get('Eintrittsdatum', datetime.now().strftime("%d.%m.%Y")),
                         'Status': request.form.get('Status', '2')}
-            self._id = self.update_csv('mitglieder.csv', mitglied)
+            self.update_csv('mitglieder.csv',self._id,  mitglied)
 
             tab_vorstand = []
             i = 1
@@ -118,7 +119,30 @@ class ClShowTable(ClDataframeHelper):
                 # self.update_id_csv('vorstand.csv', self._id, vorstand)
                 tab_vorstand.append(vorstand)
 
-            self.update_id_csv('vorstand.csv', self._id, tab_vorstand)
+            try:
+                self.delete_id_csv('vorstand.csv', self._id)
+            except ValueError as e:
+                print(e)
+
+            if len(tab_vorstand) > 0:
+                self.insert_csv('vorstand.csv', tab_vorstand)
+
+        elif action == "insert":
+
+            self._id = self.get_first_unused_id('mitglieder.csv')
+            mitglieder = []
+            mitglied = {'ID': self._id, 'Vorname': request.form.get('Vorname', 'No Name'),
+
+                        'Nachname': request.form.get('Nachname', 'No Name'),
+
+                        'Geburtsdatum': request.form.get('Geburtsdatum', datetime(2000, 1, 1).strftime("%d.%m.%Y")),
+
+                        'Eintrittsdatum': request.form.get('Eintrittsdatum', datetime.now().strftime("%d.%m.%Y")),
+
+                        'Status': request.form.get('Status', '2')}
+            mitglieder.append(mitglied)
+
+            self.insert_csv('mitglieder.csv', mitglieder)
 
         elif action == "del_ID":
             self._id = int(request.form.get('ID', 0))
@@ -126,8 +150,8 @@ class ClShowTable(ClDataframeHelper):
             self.delete_id_csv('vorstand.csv', self._id)
 
         elif action == "del_row":
-            self._id = int(request.form.get('ID', 0))
-            row_nr = request.args.get('row', 0)
+            self._id = int(request.form.get('ID', '0'))
+            row_nr = int(request.args.get('row', '0'))
             self.delete_id_row_csv('vorstand.csv', self._id, row_nr)
 
 
@@ -164,8 +188,7 @@ class ClShowTable(ClDataframeHelper):
             title = e
             table = False
 
-        templ = render_template('mitglied.html', title=title, table=table, table_vorstand=table_vorstand)
-        return templ
+        return render_template('mitglied.html', title=title, table=table, table_vorstand=table_vorstand)
 
 
 if __name__ == "__main__":

@@ -3,15 +3,14 @@ ID,Vorname,Nachname,Geburtsdatum,Eintrittsdatum,Status
 2,Max,Schmidt,11.10.1951,11.02.1977,3
 4,Lea,Meyer,14.07.1992,05.08.2015,2
 5,Ben,Wagner,23.04.1983,12.11.2007,2
-7,Finn,Becker,18.03.1974,01.01.2000,2
-8,Hannah,Schmidt,07.11.1965,23.05.1992,3
+7,Finn,Becker,18.03.1974,01.01.1999,2
+8,Hannah,Schmidt,07.11.1965,23.05.1992,2
 10,Lina,Fischer,15.01.2005,19.02.2020,2
-12,Marie,Weber,21.09.1979,02.01.2004,2
+12,Marie,Weber,21.09.1979,02.01.2002,2
 13,Lukas,Bauer,09.05.1962,16.10.1990,2
 14,Sarah,Hofmann,12.08.2008,25.11.2022,2
 15,Tim,Wolf,28.02.1981,05.03.2006,3
 16,Julia,Koch,04.11.1995,18.04.2016,2
-17,Felix,Peters,22.03.1971,11.09.1997,2
 18,Leonie,  Lehmann,17.06.2002,22.12.2019,2
 19,Anton,  Meier,01.10.1985,07.02.2011,2
 20,Clara,  Braun,20.01.1968,24.08.1994,2
@@ -72,4 +71,3 @@ ID,Vorname,Nachname,Geburtsdatum,Eintrittsdatum,Status
 188,Jonas,Müller,03.06.1998,10.04.2017,2
 189,Marie,Weber,21.09.1979,02.01.2004,2
 190,Lukas,Bauer,09.05.1962,16.10.1990,2
-3,Werner,Fischer,27.11.1953,14.09.1998,2

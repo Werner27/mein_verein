@@ -1,9 +1,18 @@
 {% extends "base_simple.html" %}
 
+{% block head %}
+    <style>
+        .vorstand-border {
+            border: 2px solid DarkGray; /* Hier kannst du die Farbe und Dicke des Rahmens ändern */
+            padding-top: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
 {% block app_content %}
     <form class="form-horizontal" id="myForm">
-        <div class="row">
-            <input type="hidden" name="ID" value="{{table[0]['ID']}}">
+        <div class="row vorstand-border">
+            <input type="hidden" name="ID" id="ID" value="{{table[0]['ID']}}">
             <div class="col-sm-12">
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label">Vorname:</label>
@@ -36,6 +45,8 @@
                     </div>
                 </div>
             </div>
+            <div>
+            {% if table[0]['ID'] != 0 %}
             <div class="col-sm-12">
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label">Vorstandstätigkeit:</label>
@@ -44,11 +55,12 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
 
+            </div>
             {% if table_vorstand %}
                 {% for row in table_vorstand %}
                 {% set row_num = loop.index0 + 1 %}
-                    <br><br>
                     <div class="col-sm-12">
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Position_{{ "%02d"|format(row_num) }}:</label>
@@ -79,6 +91,7 @@
                 {% endfor %}
             {% endif %}
             <div id="vorstands-container"></div>
+
         </div>
         <div class="form-group row">
             <div class="col-md-2">
@@ -101,8 +114,12 @@
     {% endif %}
 
     function submitUpdate() {
-        var form = document.getElementById('myForm');
-        form.action = "{{url_for('details', action='update')}}";
+        let form = document.getElementById('myForm');
+        let id = document.getElementById('ID').value;
+        let strAction;
+        if (id == 0) strAction = 'insert';
+        else strAction = 'update';
+        form.action = "{{url_for('details', action='')}}" + strAction;
         form.method = "post";
         form.submit();
     }
@@ -114,7 +131,7 @@
     }
     function submitDeleteRow(row) {
         var form = document.getElementById('myForm');
-        form.action = "{{url_for('details', action='del_row', row='')}}" + row;
+        form.action = "{{url_for('details', action='del_row', row='')|safe}}" + row;
         // Fals ich noch eine variable einfügen möchte
         // form.action = "{{ url_for('details', action='del_row', row='', extra='') }}" + row + "&extra=" + extra;
         // alert(form.action)
